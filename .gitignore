@@ -58,3 +58,6 @@ pg_ident.conf
 # Arquivos de chave privada
 *.pem
 *.key
+
+# Banco de dados
+usuario.py

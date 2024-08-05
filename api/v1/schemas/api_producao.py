@@ -2,13 +2,14 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+from api.usuario import database, caminho
 import time
 import psycopg2
 
-def scrape_producao (base_url, start_year=1970, end_year=2023):
+def scrape (base_url, start_year=1970, end_year=2023):
     chrome_options = Options()
     chrome_options.add_argument("--headless")  
-    service = Service('C:/Users/.../Downloads/chromedriver-win64/chromedriver/chromedriver.exe') 
+    service = Service(caminho) 
 
     driver = webdriver.Chrome(service=service, options=chrome_options)
 
@@ -34,7 +35,7 @@ def scrape_producao (base_url, start_year=1970, end_year=2023):
     driver.quit()
     return all_data
 
-def save_producao(data, db_name='postgres', db_user='scraping', db_password='123', db_host='localhost', db_port='5432'):
+def save(data, table_name, db_name=database['db_name'], db_user=database['db_user'], db_password=database['db_password'], db_host=database['db_host'], db_port=database['db_port']): #Colocar dados do banco de dados Postgres
     try:
         connection = psycopg2.connect(
             dbname=db_name,
