@@ -1,3 +1,5 @@
+
+# Credenciais do banco de dados exemplo
 database = {
     'db_name': 'postgres',
     'db_user': 'scraping',
@@ -6,5 +8,5 @@ database = {
     'db_port': '5432'
 }
 
-
-caminho = 'C:/Users/arthu_cjohf23/Downloads/chromedriver-win64/chromedriver/chromedriver.exe'
+# Caminho do driver no computador
+caminho = 'caminho do driver'

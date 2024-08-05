@@ -5,12 +5,12 @@ import time
 import psycopg2
 from api.usuario import database
 
-# Chave secreta para codificar e decodificar JWT
+# Chave secreta para codificar e decodificar JWT (Código do Adilson)
 SECRET_KEY = 'secret_key'
 
 # Função para autenticar o usuário
 def authenticate(username, password):
-    if username == 'admin' and password == 'password':
+    if username == 'admin' and password == 'password': # Usuário e senha de exemplo (Podemos deixar isso mais dinamico)
         token = jwt.encode({'user': username, 'exp': time.time() + 3600}, SECRET_KEY, algorithm='HS256')
         return token
     return None
@@ -54,7 +54,7 @@ def get_data_from_db():
 
 # Função para mostrar o dashboard
 def dashboard():
-    st.title('Dashboard Interativo')
+    st.title('Dashboard Interativo - TechChallange GrupoDois')
     
     try:
         df = get_data_from_db()
@@ -65,10 +65,11 @@ def dashboard():
     # Mostrar os dados
     st.write(df)
 
-    # Gráfico interativo
+    # Gráfico interativo de mapa
     st.map(df)
 
 # Verificar se o usuário está logado
+# Ainda não esta rodando
 if 'token' in st.session_state:
     user = verify_token(st.session_state['token'])
     if user:
