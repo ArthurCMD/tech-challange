@@ -6,49 +6,49 @@ from api.usuario import database, caminho
 import time
 import psycopg2
 
-def scrape(base_url, xpath, start_year=1970, end_year=2023):
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")  
-    service = Service(caminho) # Colocar o caminho do WebDriver ou usar o modo direto
+def raspar(url_base, xpath, ano_inicial=1970, ano_final=2023):
+    opcoes_chrome = Options()
+    opcoes_chrome.add_argument("--headless")  
+    servico = Service(caminho)  # Colocar o caminho do WebDriver ou usar o modo direto
 
-    driver = webdriver.Chrome(service=service, options=chrome_options)
+    navegador = webdriver.Chrome(service=servico, options=opcoes_chrome)
 
-    all_data = []
+    todos_dados = []
 
-    for year in range(start_year, end_year + 1):
-        url = f"{base_url}&ano={year}"
-        driver.get(url)
+    for ano in range(ano_inicial, ano_final + 1):
+        url = f"{url_base}&ano={ano}"
+        navegador.get(url)
         time.sleep(2)
 
         try:
-            table = driver.find_element(By.XPATH, xpath)
-            rows = table.find_elements(By.TAG_NAME, 'tr')
-            for row in rows:
-                columns = row.find_elements(By.TAG_NAME, 'td')
-                if len(columns) >= 2:
-                    chave = columns[0].text
-                    valor = columns[1].text
-                    all_data.append((year, chave, valor))
+            tabela = navegador.find_element(By.XPATH, xpath)
+            linhas = tabela.find_elements(By.TAG_NAME, 'tr')
+            for linha in linhas:
+                colunas = linha.find_elements(By.TAG_NAME, 'td')
+                if len(colunas) >= 2:
+                    chave = colunas[0].text
+                    valor = colunas[1].text
+                    todos_dados.append((ano, chave, valor))
         except Exception as e:
-            all_data.append((year, "Erro ao raspar a tabela:", str(e)))
+            todos_dados.append((ano, "Erro ao raspar a tabela:", str(e)))
 
-    driver.quit()
-    return all_data
+    navegador.quit()
+    return todos_dados
 
-def save(data, table_name, db_name=database['db_name'], db_user=database['db_user'], db_password=database['db_password'], db_host=database['db_host'], db_port=database['db_port']): #Colocar dados do banco de dados Postgres
+def salvar(dados, nome_tabela, db_nome=database['db_name'], db_usuario=database['db_user'], db_senha=database['db_password'], db_host=database['db_host'], db_porta=database['db_port']):  # Colocar dados do banco de dados PostgreSQL
     try:
-        connection = psycopg2.connect(
-            dbname=db_name,
-            user=db_user,
-            password=db_password,
+        conexao = psycopg2.connect(
+            dbname=db_nome,
+            user=db_usuario,
+            password=db_senha,
             host=db_host,
-            port=db_port
+            port=db_porta
         )
-        cursor = connection.cursor()
+        cursor = conexao.cursor()
         
         # Cria a tabela se não existir
         cursor.execute(f"""
-        CREATE TABLE IF NOT EXISTS {table_name} (
+        CREATE TABLE IF NOT EXISTS {nome_tabela} (
             id SERIAL PRIMARY KEY,
             ano INT,
             chave TEXT,
@@ -57,12 +57,12 @@ def save(data, table_name, db_name=database['db_name'], db_user=database['db_use
         """)
         
         # Insere os dados na tabela
-        for year, chave, valor in data:
-            cursor.execute(f"INSERT INTO {table_name} (ano, chave, valor) VALUES (%s, %s, %s)", (year, chave, valor))
+        for ano, chave, valor in dados:
+            cursor.execute(f"INSERT INTO {nome_tabela} (ano, chave, valor) VALUES (%s, %s, %s)", (ano, chave, valor))
         
-        connection.commit()
+        conexao.commit()
         cursor.close()
-        connection.close()
-        print(f"Dados inseridos na tabela {table_name} no banco de dados PostgreSQL com sucesso.")
-    except Exception as error:
-        print(f"Erro ao conectar ou inserir na tabela {table_name} no banco de dados PostgreSQL:", error)
+        conexao.close()
+        print(f"Dados inseridos na tabela {nome_tabela} no banco de dados PostgreSQL com sucesso.")
+    except Exception as erro:
+        print(f"Erro ao conectar ou inserir na tabela {nome_tabela} no banco de dados PostgreSQL:", erro)

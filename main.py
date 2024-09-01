@@ -1,9 +1,9 @@
 from fastapi import FastAPI
-from api.v1.schemas.api_producao import scrape, save
-from api.v1.schemas.api_processamento import scrape, save 
-from api.v1.schemas.api_comercializacao import scrape, save
-from api.v1.schemas.api_importacao import scrape, save 
-from api.v1.schemas.api_exportacao import scrape, save
+from api.v1.schemas.api_producao import raspar, salvar
+from api.v1.schemas.api_processamento import raspar, salvar 
+from api.v1.schemas.api_comercializacao import raspar, salvar
+from api.v1.schemas.api_importacao import raspar, salvar 
+from api.v1.schemas.api_exportacao import raspar, salvar
 
 app = FastAPI(
     title="Documentação API || Curso Machine Learning Engineering || Grupo 2",
@@ -16,17 +16,17 @@ app = FastAPI(
         summary='Retorna todos os dados desde de 1970 a 2023',
         tags=['Produção de Vinhos']
         )
-def read_producao(base_url: str = "http://vitibrasil.cnpuv.embrapa.br/index.php?opcao=opt_02"):
-    result = scrape(base_url)
-    save(result) 
-    return {"data": result}
+def ler_producao(url_base: str = "http://vitibrasil.cnpuv.embrapa.br/index.php?opcao=opt_02"):
+    resultado = raspar(url_base)
+    salvar(resultado) 
+    return {"dados": resultado}
 
 @app.get("/processamento/{categoria}",
         description='Dados de processamento de vinhos, sucos e derivados',
         summary='Retorna todos os dados desde de 1970 a 2023',
         tags=['Processamento de Vinhos']
         )
-def read_processamento(categoria: str):
+def ler_processamento(categoria: str):
     categorias = {
         "viniferas": {
             "url": "http://vitibrasil.cnpuv.embrapa.br/index.php?subopcao=subopt_01&opcao=opt_03",
@@ -46,22 +46,31 @@ def read_processamento(categoria: str):
         }
     }
 
+    if categoria not in categorias:
+        return {"erro": "Categoria não encontrada"}
+
+    url = categorias[categoria]["url"]
+    xpath = categorias[categoria]["xpath"]
+    resultado = raspar(url, xpath)
+    salvar(resultado, f"processamento_{categoria}")  
+    return {"dados": resultado}
+
 @app.get("/comercializacao",
-        description='Dados de processamento de vinhos, sucos e derivados',
+        description='Dados de comercialização de vinhos, sucos e derivados',
         summary='Retorna todos os dados desde de 1970 a 2023',
         tags=['Comercialização de Vinhos']
         )
-def read_comercializacao(base_url: str = "http://vitibrasil.cnpuv.embrapa.br/index.php?opcao=opt_04"):
-    result = scrape(base_url)
-    save(result) 
-    return {"data": result}
+def ler_comercializacao(url_base: str = "http://vitibrasil.cnpuv.embrapa.br/index.php?opcao=opt_04"):
+    resultado = raspar(url_base)
+    salvar(resultado) 
+    return {"dados": resultado}
 
 @app.get("/importacao/{categoria}",
-        description='Dados de processamento de vinhos, sucos e derivados',
+        description='Dados de importação de vinhos, sucos e derivados',
         summary='Retorna todos os dados desde de 1970 a 2023',
         tags=['Importação de Vinhos']
         )
-def read_importacao(categoria: str ):
+def ler_importacao(categoria: str ):
     categorias = {
         "vinhos_de_mesa": {
             "url": "http://vitibrasil.cnpuv.embrapa.br/index.php?subopcao=subopt_01&opcao=opt_05",
@@ -85,20 +94,20 @@ def read_importacao(categoria: str ):
         }
     }
     if categoria not in categorias:
-        return {"error": "Categoria não encontrada"}
+        return {"erro": "Categoria não encontrada"}
 
     url = categorias[categoria]["url"]
     xpath = categorias[categoria]["xpath"]
-    result = scrape(url, xpath)
-    save(result, f"import_{categoria}")  
-    return {"data": result}
+    resultado = raspar(url, xpath)
+    salvar(resultado, f"importacao_{categoria}")  
+    return {"dados": resultado}
 
 @app.get("/exportacao/{categoria}",
         description='Exportação de derivados de uva',
         summary='Retorna todos os dados desde de 1970 a 2023',
         tags=['Exportação de Vinhos']
         )
-def read_exportacao(categoria: str ):
+def ler_exportacao(categoria: str ):
     categorias = {
         "vinhos_de_mesa": {
             "url": "http://vitibrasil.cnpuv.embrapa.br/index.php?subopcao=subopt_01&opcao=opt_06",
@@ -119,10 +128,10 @@ def read_exportacao(categoria: str ):
     }
 
     if categoria not in categorias:
-        return {"error": "Categoria não encontrada"}
+        return {"erro": "Categoria não encontrada"}
 
     url = categorias[categoria]["url"]
     xpath = categorias[categoria]["xpath"]
-    result = scrape(url, xpath)
-    save(result, f"export_{categoria}")  
-    return {"data": result}
+    resultado = raspar(url, xpath)
+    salvar(resultado, f"exportacao_{categoria}")  
+    return {"dados": resultado}
